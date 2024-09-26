@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.uvg.rickandmorty.data.model.Location
 import com.uvg.rickandmorty.data.source.LocationDb
+import kotlinx.serialization.Serializable
 
 @Composable
 fun LocationListRoute(

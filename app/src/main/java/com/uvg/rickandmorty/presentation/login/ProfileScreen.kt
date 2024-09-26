@@ -17,6 +17,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.uvg.rickandmorty.R
 
+
+@Composable
+fun ProfileRoute(
+    onLogoutClick: () -> Unit,
+) {
+    ProfileScreen(
+        onLogoutClick = onLogoutClick
+    )
+}
+
 @Composable
 fun ProfileScreen(
     onLogoutClick: () -> Unit
@@ -29,13 +39,13 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.profile_image),
+            painter = painterResource(id = R.drawable.profileimg),
             contentDescription = "Profile Image",
             modifier = Modifier.size(128.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Nombre Completo: Laura Pérez")
-        Text(text = "Carné: 12345678")
+        Text(text = "Nombre Completo: Daniela Ramirez")
+        Text(text = "Carné: 23053")
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onLogoutClick) {
             Text(text = "Cerrar sesión")

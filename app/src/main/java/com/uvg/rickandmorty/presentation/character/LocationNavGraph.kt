@@ -1,10 +1,13 @@
-package com.uvg.rickandmorty.data.source
+package com.uvg.rickandmorty.presentation.character
 
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
-import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.uvg.rickandmorty.presentation.character.profile.LocationListDestination
+import com.uvg.rickandmorty.presentation.character.profile.locationListScreen
+import com.uvg.rickandmorty.presentation.character.profile.locationDetailScreen
+import com.uvg.rickandmorty.presentation.character.profile.navigateToLocationDetailScreen
 import kotlinx.serialization.Serializable
 
 @Serializable

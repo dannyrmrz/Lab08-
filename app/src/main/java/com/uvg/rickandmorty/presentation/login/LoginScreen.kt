@@ -51,7 +51,7 @@ private fun LoginScreen(
             }
         }
         Text(
-            text = "Juan Carlos Durini - #1201613",
+            text = "Daniela Ramirez - 23053",
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 32.dp)

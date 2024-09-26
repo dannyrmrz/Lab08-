@@ -26,8 +26,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.uvg.rickandmorty.data.model.Character
 import com.uvg.rickandmorty.data.source.CharacterDb
 import com.uvg.rickandmorty.presentation.ui.theme.RickAndMortyTheme
@@ -79,13 +84,16 @@ private fun CharacterProfileScreen(
                     .size(200.dp)
                     .background(MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape)
             ) {
-                Icon(
-                    Icons.Outlined.Person,
-                    contentDescription = "Person",
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(character.image)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = character.name,
+                    contentScale = ContentScale.FillWidth,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                        .clip(CircleShape)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
