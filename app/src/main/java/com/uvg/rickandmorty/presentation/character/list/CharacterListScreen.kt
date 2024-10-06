@@ -1,51 +1,37 @@
+// CharacterListScreen.kt
 package com.uvg.rickandmorty.presentation.character.list
 
-import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.uvg.rickandmorty.data.model.Character
-import com.uvg.rickandmorty.data.source.CharacterDb
-import com.uvg.rickandmorty.presentation.ui.theme.RickAndMortyTheme
 
 @Composable
 fun CharacterListRoute(
     onCharacterClick: (Int) -> Unit,
+    viewModel: CharacterListViewModel = viewModel()
 ) {
-    val characterDb = CharacterDb()
-    val characters = characterDb.getAllCharacters()
-    CharacterListScreen(
-        characters = characters,
-        onCharacterClick = onCharacterClick,
-        modifier = Modifier.fillMaxSize()
-    )
+    val state by viewModel.state.collectAsState()
+
+    when {
+        state.isLoading -> LoadingScreen(onClick = { viewModel.setError() })
+        state.hasError -> ErrorScreen(onRetry = { viewModel.retry() })
+        else -> CharacterListScreen(
+            characters = state.data ?: emptyList(),
+            onCharacterClick = onCharacterClick,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @Composable
@@ -69,66 +55,38 @@ private fun CharacterListScreen(
 }
 
 @Composable
-private fun CharacterItem(
-    character: Character,
-    modifier: Modifier = Modifier
-) {
-    val imageBackgroundColors = listOf(
-        MaterialTheme.colorScheme.error,
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.inverseSurface
-    )
-    Row(
-        modifier = modifier.padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+private fun LoadingScreen(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        Surface(
-            modifier = Modifier.size(48.dp),
-            color = imageBackgroundColors.random(),
-            shape = CircleShape
-        ) {
-            Box {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(character.image)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = character.name,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(50.dp)
-                )
-            }
-        }
-        Column {
-            Text(text = character.name)
-            Text(
-                text = "${character.species} * ${character.status}",
-                style = MaterialTheme.typography.labelSmall
-            )
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CircularProgressIndicator()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Loading...")
         }
     }
 }
 
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun PreviewCharacterListScreen() {
-    RickAndMortyTheme() {
-        Surface {
-            val db = CharacterDb()
-            CharacterListScreen(
-                characters = db.getAllCharacters().take(6),
-                onCharacterClick = {},
-                modifier = Modifier.fillMaxSize()
-            )
+private fun ErrorScreen(onRetry: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.error)
+            .clickable(onClick = onRetry),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(Icons.Default.Error, contentDescription = null, tint = MaterialTheme.colorScheme.onError)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "Error al obtener listado de personajes. Intenta de nuevo", color = MaterialTheme.colorScheme.onError)
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = onRetry) {
+                Text(text = "Reintentar")
+            }
         }
     }
 }
