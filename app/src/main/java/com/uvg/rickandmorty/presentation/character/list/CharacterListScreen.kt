@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.uvg.rickandmorty.data.model.Character
+import com.uvg.rickandmorty.presentation.character.list.CharacterItem
 
 @Composable
 fun CharacterListRoute(

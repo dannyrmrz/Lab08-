@@ -1,38 +1,46 @@
-package com.uvg.rickandmorty.presentation.character.profile
+// LocationDetailScreen.kt
+package com.uvg.rickandmorty.presentation.location.detail
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.uvg.rickandmorty.data.model.Location
-import com.uvg.rickandmorty.data.source.LocationDb
+import com.uvg.rickandmorty.presentation.character.profile.LocationDetailViewModel
+import com.uvg.rickandmorty.presentation.common.LoadingScreen
+import com.uvg.rickandmorty.presentation.common.ErrorScreen
+import com.uvg.rickandmorty.presentation.character.profile.LocationDetailViewModelFactory
 
 @Composable
 fun LocationDetailRoute(
     id: Int,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: LocationDetailViewModel = viewModel(factory = LocationDetailViewModelFactory(id))
 ) {
-    val locationDb = LocationDb()
-    val location = locationDb.getLocationById(id)
-    LocationDetailScreen(
-        location = location,
-        onNavigateBack = onNavigateBack,
-        modifier = Modifier.fillMaxSize()
-    )
+    val state by viewModel.state.collectAsState()
+
+    when {
+        state.isLoading -> LoadingScreen(onClick = { viewModel.setError() })
+        state.hasError -> ErrorScreen(onRetry = { viewModel.retry() })
+        else -> LocationDetailScreen(
+            location = state.data!!,
+            onNavigateBack = onNavigateBack,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,7 +55,7 @@ private fun LocationDetailScreen(
     ) {
         TopAppBar(
             title = {
-                Text("Location Details")
+                Text("Location Detail")
             },
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
@@ -63,10 +71,53 @@ private fun LocationDetailScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            Text(text = "ID: ${location.id}")
-            Text(text = "Name: ${location.name}")
-            Text(text = "Type: ${location.type}")
-            Text(text = "Dimension: ${location.dimension}")
+            Box(
+                modifier = Modifier
+                    .size(200.dp)
+                    .background(MaterialTheme.colorScheme.secondaryContainer, shape = CircleShape)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = location.name,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = location.name,
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            LocationDetailPropItem(
+                title = "Type:",
+                value = location.type,
+                modifier = Modifier.fillMaxWidth()
+            )
+            LocationDetailPropItem(
+                title = "Dimension:",
+                value = location.dimension,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
+    }
+}
+
+@Composable
+private fun LocationDetailPropItem(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = title)
+        Text(text = value)
     }
 }

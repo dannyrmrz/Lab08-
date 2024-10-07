@@ -6,6 +6,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.uvg.rickandmorty.presentation.character.profile.CharacterProfileRoute
+import com.uvg.rickandmorty.presentation.location.detail.LocationDetailRoute
 import kotlinx.serialization.Serializable
 
 @Serializable
