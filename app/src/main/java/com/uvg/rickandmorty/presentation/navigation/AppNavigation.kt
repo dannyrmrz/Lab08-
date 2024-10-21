@@ -1,6 +1,4 @@
 // AppNavigation.kt
-package com.uvg.rickandmorty.presentation.navigation
-
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -32,12 +30,13 @@ fun AppNavigation(
     ) {
         composable("login") {
             loginScreen(onLoginClick = { userName ->
-                onLogin(userName.toString())
-                navController.navigate("profile")
+                onLogin(userName)
+                navController.navigate("profile/$userName")
             })
         }
-        composable("profile") {
-            profileScreen(userName = "userName", onLogoutClick = {
+        composable("profile/{userName}") { backStackEntry ->
+            val userName = backStackEntry.arguments?.getString("userName") ?: ""
+            profileScreen(userName = userName, onLogoutClick = {
                 onLogout()
                 navController.navigate("login") {
                     popUpTo(navController.graph.startDestinationId) {
