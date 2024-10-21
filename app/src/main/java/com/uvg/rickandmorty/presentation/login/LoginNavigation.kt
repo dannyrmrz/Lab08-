@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data object LoginDestination
 
 fun NavGraphBuilder.loginScreen(
-    onLoginClick: () -> Unit
+    onLoginClick: (Any?) -> Unit
 ) {
     composable<LoginDestination> {
         LoginRoute(
