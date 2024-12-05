@@ -1,11 +1,16 @@
+// MainActivity.kt
 package com.uvg.rickandmorty
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
-import com.uvg.rickandmorty.presentation.navigation.AppNavigation
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.uvg.rickandmorty.presentation.character.characterGraph
+import com.uvg.rickandmorty.presentation.character.locationGraph
+import com.uvg.rickandmorty.presentation.login.loginScreen
+import com.uvg.rickandmorty.presentation.login.profileScreen
 import com.uvg.rickandmorty.presentation.ui.theme.RickAndMortyTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +18,29 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             RickAndMortyTheme {
-                AppNavigation(modifier = Modifier.fillMaxSize())
+                val navController = rememberNavController()
+                NavHost(
+                    navController = navController,
+                    startDestination = "login"
+                ) {
+                    composable("login") {
+                        loginScreen { userName ->
+                            navController.navigate("profile/$userName")
+                        }
+                    }
+                    composable("profile/{userName}") { backStackEntry ->
+                        val userName = backStackEntry.arguments?.getString("userName") ?: ""
+                        profileScreen(userName = userName, onLogoutClick = {
+                            navController.navigate("login") {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = true
+                                }
+                            }
+                        })
+                    }
+                    characterGraph(navController)
+                    locationGraph(navController)
+                }
             }
         }
     }
